@@ -1,26 +1,13 @@
-
-# Виртуальное окружение
 venv/
 .venv/
 env/
 .env/
-
-# Большие медиафайлы
 *.mp4
 *.avi
 *.mkv
 *.mov
-*.wmv
-*.flv
-*.webm
-
-# Другие большие файлы
+input/
+output/
 *.so
 *.dll
 *.dylib
-*.bin
-input/
-output/
-*.pt
-*.pth
-*.onnx
