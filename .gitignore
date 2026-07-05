@@ -1,13 +1,72 @@
+# =====================================
+# Python
+# =====================================
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
 venv/
-.venv/
-env/
-.env/
-*.mp4
-*.avi
-*.mkv
-*.mov
-input/
-output/
-*.so
-*.dll
-*.dylib
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# =====================================
+# Dataset
+# =====================================
+
+dataset/*
+!dataset/.gitkeep
+
+# =====================================
+# Input videos
+# =====================================
+
+input/*
+!input/.gitkeep
+
+input/full/*
+!input/full/.gitkeep
+
+input/parts/*
+!input/parts/.gitkeep
+
+# =====================================
+# AI models
+# =====================================
+
+models/*
+!models/.gitkeep
+
+# =====================================
+# Training
+# =====================================
+
+training/*
+!training/.gitkeep
+
+# =====================================
+# Output
+# =====================================
+
+output/*
+!output/.gitkeep
+
+output/clips/*
+!output/clips/.gitkeep
+
+output/vertical/*
+!output/vertical/.gitkeep
+
+# =====================================
+# Temporary
+# =====================================
+
+*.log

@@ -12,6 +12,6 @@ SUBS = OUTPUT / "subtitles"
 
 THUMBNAILS = OUTPUT / "thumbnails"
 
-MODEL_NAME = "small"
+MODEL_NAME = "large-v3"
 
 LANGUAGE = "ru"
