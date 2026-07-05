@@ -1,62 +1,52 @@
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 
-def save_clips(video_path, clips, output_dir="output/clips", reencode=False):
+OUTPUT_DIR = Path("output")
+OUTPUT_DIR.mkdir(exist_ok=True)
+
+
+def save_clips(video_path, clips):
     """
-    reencode=False  -> очень быстро, возможен сдвиг до ближайшего keyframe
-    reencode=True   -> медленнее, но обрезка точная
+    Сохраняет топ клипы через ffmpeg (fast cut)
     """
 
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    total = len(clips)
-
-    print("\n🎬 Начинаем сохранение клипов...\n")
+    print("\n✂️ Начинаем нарезку клипов...\n")
 
     for i, clip in enumerate(clips, start=1):
 
-        start = float(clip["start"])
-        end = float(clip["end"])
+        start = clip["start"]
+        end = clip["end"]
+        score = int(clip.get("score", 0))
+        scene = clip.get("scene", "unknown")
+
         duration = end - start
 
-        outfile = output_dir / f"clip_{i:02d}.mp4"
+        output_name = f"clip_{i:02d}_{int(start)}s-{int(end)}s_score{score}_{scene}.mp4"
+        output_path = OUTPUT_DIR / output_name
 
-        print(f"[{i}/{total}] {outfile.name}")
-        print(f"    {start:.1f}s → {end:.1f}s ({duration:.1f}s)")
+        print(f"[{i}/{len(clips)}] ➜ {output_name}")
 
-        if reencode:
+        cmd = [
+            "ffmpeg",
+            "-y",
 
-            cmd = [
-                "ffmpeg",
-                "-y",
-                "-ss", str(start),
-                "-i", str(video_path),
-                "-t", str(duration),
-                "-c:v", "libx264",
-                "-preset", "veryfast",
-                "-crf", "18",
-                "-c:a", "aac",
-                str(outfile)
-            ]
+            # input
+            "-ss", str(start),
+            "-i", str(video_path),
 
-        else:
+            # fast seek
+            "-t", str(duration),
 
-            cmd = [
-                "ffmpeg",
-                "-y",
-                "-ss", str(start),
-                "-i", str(video_path),
-                "-t", str(duration),
-                "-c", "copy",
-                str(outfile)
-            ]
+            # no re-encode (fast)
+            "-c", "copy",
 
-        subprocess.run(
-            cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
+            str(output_path)
+        ]
 
-    print("\n✅ Все клипы сохранены.")
+        try:
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as e:
+            print(f"❌ Ошибка клипа {i}: {e}")
+
+    print("\n✅ Все клипы сохранены в папку output/")

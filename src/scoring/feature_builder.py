@@ -1,32 +1,42 @@
-from src.audio.audio_analyzer import analyze_audio
+import cv2
 
 
-def build_features(video_path, windows):
+def extract_frames(video_path, start_time, end_time, max_frames=5):
+    """
+    Достаёт N кадров из видео между start_time и end_time
+    """
 
-    print("🎧 Анализируем аудио...")
+    cap = cv2.VideoCapture(video_path)
 
-    audio = analyze_audio(video_path)
+    if not cap.isOpened():
+        raise RuntimeError(f"Не удалось открыть видео: {video_path}")
 
-    features = []
+    fps = cap.get(cv2.CAP_PROP_FPS)
 
-    for window in windows:
+    if fps == 0:
+        fps = 25  # fallback
 
-        total_score = 0
-        count = 0
+    frames = []
 
-        for second in audio:
+    start_frame = int(start_time * fps)
+    end_frame = int(end_time * fps)
 
-            if window["start"] <= second["start"] <= window["end"]:
-                total_score += second["score"]
-                count += 1
+    step = max(1, (end_frame - start_frame) // max_frames)
 
-        if count > 0:
-            audio_score = round(total_score / count, 2)
-        else:
-            audio_score = 0
+    for frame_idx in range(start_frame, end_frame, step):
 
-        window["audio_score"] = audio_score
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
 
-        features.append(window)
+        ret, frame = cap.read()
 
-    return features
+        if not ret:
+            continue
+
+        frames.append(frame)
+
+        if len(frames) >= max_frames:
+            break
+
+    cap.release()
+
+    return frames

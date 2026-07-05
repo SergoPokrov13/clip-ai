@@ -1,31 +1,43 @@
 import cv2
 
 
-def sample_frames(video, interval=5):
+def extract_frames(video_path, start_time, end_time, max_frames=5):
+    """
+    Достаёт кадры из видео между start_time и end_time
+    """
 
-    cap = cv2.VideoCapture(video)
+    cap = cv2.VideoCapture(video_path)
+
+    if not cap.isOpened():
+        raise RuntimeError(f"Не удалось открыть видео: {video_path}")
 
     fps = cap.get(cv2.CAP_PROP_FPS)
-
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    duration = frame_count / fps
+    if fps == 0:
+        fps = 25
 
     frames = []
 
-    t = 0
+    start_frame = int(start_time * fps)
+    end_frame = int(end_time * fps)
 
-    while t < duration:
+    if end_frame <= start_frame:
+        cap.release()
+        return []
 
-        cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000)
+    step = max(1, (end_frame - start_frame) // max_frames)
 
+    for frame_idx in range(start_frame, end_frame, step):
+
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
         ret, frame = cap.read()
 
-        if ret:
-            frames.append(frame)
+        if not ret:
+            continue
 
-        t += interval
+        frames.append(frame)
+
+        if len(frames) >= max_frames:
+            break
 
     cap.release()
-
     return frames
